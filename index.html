@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tarô - Tirar Cartas</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
+    h1 { margin: 0 0 1rem; }
+    .controls { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
+    input[type="number"]{ width: 6rem; padding: .4rem; }
+    button{ padding: .5rem .9rem; cursor: pointer; }
+    ul{ line-height: 1.8; }
+    .cards{ margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Tarô - Tirar cartas</h1>
+  <div class="controls">
+    <label for="qtd">Quantidade:</label>
+    <input id="qtd" type="number" min="1" max="78" value="5" />
+    <button id="btn">Tirar cartas</button>
+    <button id="btn2">Tirar novamente</button>
+  </div>
+  <div class="cards">
+    <strong>Cartas sorteadas:</strong>
+    <ul id="lista"></ul>
+  </div>
+
+  <script>
+    const tarotCards = [
+      // Arcanos Maiores
+      "O Louco", "O Mago", "A Sacerdotisa", "A Imperatriz", "O Imperador",
+      "O Hierofante", "Os Enamorados", "O Carro", "A Justiça", "O Eremita",
+      "A Roda da Fortuna", "A Força", "O Enforcado", "A Morte", "A Temperança",
+      "O Diabo", "A Torre", "A Estrela", "A Lua", "O Sol", "O Julgamento", "O Mundo",
+
+      // Paus
+      "Ás de Paus", "Dois de Paus", "Três de Paus", "Quatro de Paus", "Cinco de Paus",
+      "Seis de Paus", "Sete de Paus", "Oito de Paus", "Nove de Paus", "Dez de Paus",
+      "Pajem de Paus", "Cavaleiro de Paus", "Rainha de Paus", "Rei de Paus",
+
+      // Copas
+      "Ás de Copas", "Dois de Copas", "Três de Copas", "Quatro de Copas", "Cinco de Copas",
+      "Seis de Copas", "Sete de Copas", "Oito de Copas", "Nove de Copas", "Dez de Copas",
+      "Pajem de Copas", "Cavaleiro de Copas", "Rainha de Copas", "Rei de Copas",
+
+      // Espadas
+      "Ás de Espadas", "Dois de Espadas", "Três de Espadas", "Quatro de Espadas", "Cinco de Espadas",
+      "Seis de Espadas", "Sete de Espadas", "Oito de Espadas", "Nove de Espadas", "Dez de Espadas",
+      "Pajem de Espadas", "Cavaleiro de Espadas", "Rainha de Espadas", "Rei de Espadas",
+
+      // Ouros
+      "Ás de Ouros", "Dois de Ouros", "Três de Ouros", "Quatro de Ouros", "Cinco de Ouros",
+      "Seis de Ouros", "Sete de Ouros", "Oito de Ouros", "Nove de Ouros", "Dez de Ouros",
+      "Pajem de Ouros", "Cavaleiro de Ouros", "Rainha de Ouros", "Rei de Ouros"
+    ];
+
+    function tirarCartas(qtd = 5){
+      const n = Math.max(1, Math.min(qtd|0, tarotCards.length));
+      const arr = tarotCards.slice();
+      for(let i = arr.length - 1; i > 0; i--){
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr.slice(0, n);
+    }
+
+    const qtdEl = document.getElementById('qtd');
+    const listaEl = document.getElementById('lista');
+    function render(){
+      const qtd = Number(qtdEl.value) || 5;
+      const cartas = tirarCartas(qtd);
+      listaEl.innerHTML = cartas.map(c => `<li>${c}</li>`).join('');
+    }
+    document.getElementById('btn').addEventListener('click', render);
+    document.getElementById('btn2').addEventListener('click', render);
+
+    // primeira renderização
+    render();
+  </script>
+</body>
+</html>
