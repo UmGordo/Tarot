@@ -3,82 +3,464 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tarô - Tirar Cartas</title>
+  <title>Tarô v2 - Leitura Interativa</title>
   <style>
-    :root { color-scheme: light dark; }
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
-    h1 { margin: 0 0 1rem; }
-    .controls { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: 1rem; }
-    input[type="number"]{ width: 6rem; padding: .4rem; }
-    button{ padding: .5rem .9rem; cursor: pointer; }
-    ul{ line-height: 1.8; }
-    .cards{ margin-top: 1rem; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-maiores: #8b4fc1;
+      --color-paus: #d4a574;
+      --color-copas: #e74c3c;
+      --color-espadas: #34495e;
+      --color-ouros: #f39c12;
+      --color-bg: #0f0f1e;
+      --color-bg-card: #1a1a2e;
+      --color-text: #e0e0e0;
+      --color-text-light: #a0a0a0;
+      --color-accent: #00d4ff;
+      --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      --radius: 12px;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0f0f1e 0%, #1a0f2e 50%, #2a0f4e 100%);
+      background-attachment: fixed;
+      color: var(--color-text);
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--color-accent);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, var(--color-maiores), var(--color-copas));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .subtitle {
+      color: var(--color-text-light);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 1.5rem;
+      background: var(--color-bg-card);
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .control-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    label {
+      color: var(--color-text-light);
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    input[type="number"] {
+      width: 70px;
+      padding: 0.6rem;
+      background: var(--color-bg);
+      border: 2px solid var(--color-accent);
+      color: var(--color-text);
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--color-maiores);
+      box-shadow: 0 0 10px rgba(139, 79, 193, 0.3);
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--color-maiores), var(--color-copas));
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(139, 79, 193, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 79, 193, 0.5);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding-bottom: 2rem;
+    }
+
+    .card {
+      background: var(--color-bg-card);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: var(--shadow);
+      border-left: 5px solid var(--color-text-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 212, 255, 0.1);
+      transition: left 0.3s;
+      pointer-events: none;
+    }
+
+    .card:hover::before {
+      left: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 212, 255, 0.2);
+    }
+
+    /* Cores por naipe */
+    .card.maiores {
+      border-left-color: var(--color-maiores);
+    }
+
+    .card.maiores .card-symbol {
+      color: var(--color-maiores);
+    }
+
+    .card.paus {
+      border-left-color: var(--color-paus);
+    }
+
+    .card.paus .card-symbol {
+      color: var(--color-paus);
+    }
+
+    .card.copas {
+      border-left-color: var(--color-copas);
+    }
+
+    .card.copas .card-symbol {
+      color: var(--color-copas);
+    }
+
+    .card.espadas {
+      border-left-color: var(--color-espadas);
+    }
+
+    .card.espadas .card-symbol {
+      color: var(--color-espadas);
+    }
+
+    .card.ouros {
+      border-left-color: var(--color-ouros);
+    }
+
+    .card.ouros .card-symbol {
+      color: var(--color-ouros);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-symbol {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .card-title {
+      flex: 1;
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--color-text);
+    }
+
+    .card-number {
+      font-size: 0.8rem;
+      color: var(--color-text-light);
+      background: rgba(0, 212, 255, 0.1);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .card-description {
+      color: var(--color-text-light);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      font-style: italic;
+    }
+
+    .card-suit {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(0, 212, 255, 0.1);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--color-text-light);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      .control-group {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .cards-container {
+        grid-template-columns: 1fr;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Tarô - Tirar cartas</h1>
-  <div class="controls">
-    <label for="qtd">Quantidade:</label>
-    <input id="qtd" type="number" min="1" max="78" value="5" />
-    <button id="btn">Tirar cartas</button>
-    <button id="btn2">Tirar novamente</button>
-  </div>
-  <div class="cards">
-    <strong>Cartas sorteadas:</strong>
-    <ul id="lista"></ul>
+  <div class="container">
+    <header>
+      <h1>✨ Tarô Interativo ✨</h1>
+      <p class="subtitle">Descubra as mensagens do universo</p>
+    </header>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="qtd">Quantas cartas?</label>
+        <input id="qtd" type="number" min="1" max="78" value="3" />
+      </div>
+      <button id="btn-tirar">Tirar Cartas</button>
+    </div>
+
+    <div class="cards-container" id="cards-list"></div>
+
+    <div class="empty-state" id="empty-state" style="display:none;">
+      <div class="empty-state-icon">🃏</div>
+      <div class="empty-state-text">Clique em "Tirar Cartas" para começar sua leitura</div>
+    </div>
   </div>
 
   <script>
-    const tarotCards = [
+    const baralho = [
       // Arcanos Maiores
-      "O Louco", "O Mago", "A Sacerdotisa", "A Imperatriz", "O Imperador",
-      "O Hierofante", "Os Enamorados", "O Carro", "A Justiça", "O Eremita",
-      "A Roda da Fortuna", "A Força", "O Enforcado", "A Morte", "A Temperança",
-      "O Diabo", "A Torre", "A Estrela", "A Lua", "O Sol", "O Julgamento", "O Mundo",
+      { nome: 'O Louco', naipe: 'Maiores', num: 0, desc: 'Começo, espontaneidade, inocência', symbol: '★' },
+      { nome: 'O Mago', naipe: 'Maiores', num: 1, desc: 'Poder, criatividade, habilidade', symbol: '★' },
+      { nome: 'A Sacerdotisa', naipe: 'Maiores', num: 2, desc: 'Intuição, sabedoria, mistério', symbol: '★' },
+      { nome: 'A Imperatriz', naipe: 'Maiores', num: 3, desc: 'Fertilidade, abundância, criação', symbol: '★' },
+      { nome: 'O Imperador', naipe: 'Maiores', num: 4, desc: 'Autoridade, estrutura, controle', symbol: '★' },
+      { nome: 'O Hierofante', naipe: 'Maiores', num: 5, desc: 'Tradição, espiritualidade, conformidade', symbol: '★' },
+      { nome: 'Os Enamorados', naipe: 'Maiores', num: 6, desc: 'Amor, escolha, harmonia', symbol: '★' },
+      { nome: 'O Carro', naipe: 'Maiores', num: 7, desc: 'Determinação, movimento, vitória', symbol: '★' },
+      { nome: 'A Justiça', naipe: 'Maiores', num: 8, desc: 'Equilíbrio, verdade, responsabilidade', symbol: '★' },
+      { nome: 'O Eremita', naipe: 'Maiores', num: 9, desc: 'Introspecção, busca interna, solitude', symbol: '★' },
+      { nome: 'A Roda da Fortuna', naipe: 'Maiores', num: 10, desc: 'Ciclos, destino, mudança', symbol: '★' },
+      { nome: 'A Força', naipe: 'Maiores', num: 11, desc: 'Coragem, paciência, controle interno', symbol: '★' },
+      { nome: 'O Enforcado', naipe: 'Maiores', num: 12, desc: 'Renúncia, suspensão, nova perspectiva', symbol: '★' },
+      { nome: 'A Morte', naipe: 'Maiores', num: 13, desc: 'Transformação, fim, recomeço', symbol: '★' },
+      { nome: 'A Temperança', naipe: 'Maiores', num: 14, desc: 'Equilíbrio, modulação, cura', symbol: '★' },
+      { nome: 'O Diabo', naipe: 'Maiores', num: 15, desc: 'Limitações, escravidão, tentação', symbol: '★' },
+      { nome: 'A Torre', naipe: 'Maiores', num: 16, desc: 'Destruição, revelação, libertação', symbol: '★' },
+      { nome: 'A Estrela', naipe: 'Maiores', num: 17, desc: 'Esperança, inspiração, clareza', symbol: '★' },
+      { nome: 'A Lua', naipe: 'Maiores', num: 18, desc: 'Ilusão, medo, subconsciente', symbol: '★' },
+      { nome: 'O Sol', naipe: 'Maiores', num: 19, desc: 'Sucesso, vitalidade, alegria', symbol: '★' },
+      { nome: 'O Julgamento', naipe: 'Maiores', num: 20, desc: 'Despertar, chamado, ressurreição', symbol: '★' },
+      { nome: 'O Mundo', naipe: 'Maiores', num: 21, desc: 'Conclusão, completude, viagem', symbol: '★' },
 
-      // Paus
-      "Ás de Paus", "Dois de Paus", "Três de Paus", "Quatro de Paus", "Cinco de Paus",
-      "Seis de Paus", "Sete de Paus", "Oito de Paus", "Nove de Paus", "Dez de Paus",
-      "Pajem de Paus", "Cavaleiro de Paus", "Rainha de Paus", "Rei de Paus",
+      // Paus (14)
+      { nome: 'Ás de Paus', naipe: 'Paus', num: 1, desc: 'Nova energia, inspiração, potencial', symbol: '✦' },
+      { nome: 'Dois de Paus', naipe: 'Paus', num: 2, desc: 'Planejamento, parceria, decisão', symbol: '✦' },
+      { nome: 'Três de Paus', naipe: 'Paus', num: 3, desc: 'Progresso, exploração, crescimento', symbol: '✦' },
+      { nome: 'Quatro de Paus', naipe: 'Paus', num: 4, desc: 'Celebração, comunidade, harmonia', symbol: '✦' },
+      { nome: 'Cinco de Paus', naipe: 'Paus', num: 5, desc: 'Conflito, competição, tensão', symbol: '✦' },
+      { nome: 'Seis de Paus', naipe: 'Paus', num: 6, desc: 'Sucesso, reconhecimento, liderança', symbol: '✦' },
+      { nome: 'Sete de Paus', naipe: 'Paus', num: 7, desc: 'Defesa, perseverança, coragem', symbol: '✦' },
+      { nome: 'Oito de Paus', naipe: 'Paus', num: 8, desc: 'Movimento, velocidade, progressão', symbol: '✦' },
+      { nome: 'Nove de Paus', naipe: 'Paus', num: 9, desc: 'Resiliência, resistência, força', symbol: '✦' },
+      { nome: 'Dez de Paus', naipe: 'Paus', num: 10, desc: 'Peso, responsabilidade, ônus', symbol: '✦' },
+      { nome: 'Pajem de Paus', naipe: 'Paus', num: 11, desc: 'Exploração, criatividade, juventude', symbol: '✦' },
+      { nome: 'Cavaleiro de Paus', naipe: 'Paus', num: 12, desc: 'Paixão, energia, movimento', symbol: '✦' },
+      { nome: 'Rainha de Paus', naipe: 'Paus', num: 13, desc: 'Aquecimento, hospitalidade, sensualidade', symbol: '✦' },
+      { nome: 'Rei de Paus', naipe: 'Paus', num: 14, desc: 'Liderança, visão, inspiração', symbol: '✦' },
 
-      // Copas
-      "Ás de Copas", "Dois de Copas", "Três de Copas", "Quatro de Copas", "Cinco de Copas",
-      "Seis de Copas", "Sete de Copas", "Oito de Copas", "Nove de Copas", "Dez de Copas",
-      "Pajem de Copas", "Cavaleiro de Copas", "Rainha de Copas", "Rei de Copas",
+      // Copas (14)
+      { nome: 'Ás de Copas', naipe: 'Copas', num: 1, desc: 'Amor, novas emoções, inspiração', symbol: '♡' },
+      { nome: 'Dois de Copas', naipe: 'Copas', num: 2, desc: 'Parceria, amor, conexão', symbol: '♡' },
+      { nome: 'Três de Copas', naipe: 'Copas', num: 3, desc: 'Celebração, amizade, comunidade', symbol: '♡' },
+      { nome: 'Quatro de Copas', naipe: 'Copas', num: 4, desc: 'Apátia, desinteresse, dissatisfação', symbol: '♡' },
+      { nome: 'Cinco de Copas', naipe: 'Copas', num: 5, desc: 'Perda, arrependimento, tristeza', symbol: '♡' },
+      { nome: 'Seis de Copas', naipe: 'Copas', num: 6, desc: 'Inocência, nostalgia, generosidade', symbol: '♡' },
+      { nome: 'Sete de Copas', naipe: 'Copas', num: 7, desc: 'Ilusão, escolha, oportunidade', symbol: '♡' },
+      { nome: 'Oito de Copas', naipe: 'Copas', num: 8, desc: 'Abandono, busca, desengano', symbol: '♡' },
+      { nome: 'Nove de Copas', naipe: 'Copas', num: 9, desc: 'Satisfação, desejo realizado, alegria', symbol: '♡' },
+      { nome: 'Dez de Copas', naipe: 'Copas', num: 10, desc: 'Harmonia, família, felicidade', symbol: '♡' },
+      { nome: 'Pajem de Copas', naipe: 'Copas', num: 11, desc: 'Intuição, sensibilidade, juventude', symbol: '♡' },
+      { nome: 'Cavaleiro de Copas', naipe: 'Copas', num: 12, desc: 'Romance, idealismo, encanto', symbol: '♡' },
+      { nome: 'Rainha de Copas', naipe: 'Copas', num: 13, desc: 'Compaixão, empatia, intuição', symbol: '♡' },
+      { nome: 'Rei de Copas', naipe: 'Copas', num: 14, desc: 'Sabedoria emocional, compaixão, controle', symbol: '♡' },
 
-      // Espadas
-      "Ás de Espadas", "Dois de Espadas", "Três de Espadas", "Quatro de Espadas", "Cinco de Espadas",
-      "Seis de Espadas", "Sete de Espadas", "Oito de Espadas", "Nove de Espadas", "Dez de Espadas",
-      "Pajem de Espadas", "Cavaleiro de Espadas", "Rainha de Espadas", "Rei de Espadas",
+      // Espadas (14)
+      { nome: 'Ás de Espadas', naipe: 'Espadas', num: 1, desc: 'Verdade, clareza, nova ideia', symbol: '♠' },
+      { nome: 'Dois de Espadas', naipe: 'Espadas', num: 2, desc: 'Impasse, indecisão, equilíbrio', symbol: '♠' },
+      { nome: 'Três de Espadas', naipe: 'Espadas', num: 3, desc: 'Mágoa, sorrow, sofrimento', symbol: '♠' },
+      { nome: 'Quatro de Espadas', naipe: 'Espadas', num: 4, desc: 'Descanso, pausa, contemplação', symbol: '♠' },
+      { nome: 'Cinco de Espadas', naipe: 'Espadas', num: 5, desc: 'Derrota, conflito, perda', symbol: '♠' },
+      { nome: 'Seis de Espadas', naipe: 'Espadas', num: 6, desc: 'Transição, jornada, movimento', symbol: '♠' },
+      { nome: 'Sete de Espadas', naipe: 'Espadas', num: 7, desc: 'Furtividade, engano, estratégia', symbol: '♠' },
+      { nome: 'Oito de Espadas', naipe: 'Espadas', num: 8, desc: 'Restrição, aprisionamento, confusão', symbol: '♠' },
+      { nome: 'Nove de Espadas', naipe: 'Espadas', num: 9, desc: 'Ansiedade, medo, insônia', symbol: '♠' },
+      { nome: 'Dez de Espadas', naipe: 'Espadas', num: 10, desc: 'Defeito, finalidade, limite', symbol: '♠' },
+      { nome: 'Pajem de Espadas', naipe: 'Espadas', num: 11, desc: 'Observação, vigilância, escuta', symbol: '♠' },
+      { nome: 'Cavaleiro de Espadas', naipe: 'Espadas', num: 12, desc: 'Confrontação, movimento, conflito', symbol: '♠' },
+      { nome: 'Rainha de Espadas', naipe: 'Espadas', num: 13, desc: 'Clareza, lógica, independência', symbol: '♠' },
+      { nome: 'Rei de Espadas', naipe: 'Espadas', num: 14, desc: 'Poder intelectual, autoridade, verdade', symbol: '♠' },
 
-      // Ouros
-      "Ás de Ouros", "Dois de Ouros", "Três de Ouros", "Quatro de Ouros", "Cinco de Ouros",
-      "Seis de Ouros", "Sete de Ouros", "Oito de Ouros", "Nove de Ouros", "Dez de Ouros",
-      "Pajem de Ouros", "Cavaleiro de Ouros", "Rainha de Ouros", "Rei de Ouros"
+      // Ouros (14)
+      { nome: 'Ás de Ouros', naipe: 'Ouros', num: 1, desc: 'Prosperidade, oportunidade, riqueza', symbol: '◆' },
+      { nome: 'Dois de Ouros', naipe: 'Ouros', num: 2, desc: 'Equilíbrio, adaptação, flexibilidade', symbol: '◆' },
+      { nome: 'Três de Ouros', naipe: 'Ouros', num: 3, desc: 'Trabalho em equipe, craft, maestria', symbol: '◆' },
+      { nome: 'Quatro de Ouros', naipe: 'Ouros', num: 4, desc: 'Conservação, segurança, possessão', symbol: '◆' },
+      { nome: 'Cinco de Ouros', naipe: 'Ouros', num: 5, desc: 'Dificuldade financeira, ansiedade, isolamento', symbol: '◆' },
+      { nome: 'Seis de Ouros', naipe: 'Ouros', num: 6, desc: 'Generosidade, caridade, compartilhamento', symbol: '◆' },
+      { nome: 'Sete de Ouros', naipe: 'Ouros', num: 7, desc: 'Avaliação, reflexão, reavaliação', symbol: '◆' },
+      { nome: 'Oito de Ouros', naipe: 'Ouros', num: 8, desc: 'Aprendizado, mestria, desenvolvimento', symbol: '◆' },
+      { nome: 'Nove de Ouros', naipe: 'Ouros', num: 9, desc: 'Luxo, independência, conforto', symbol: '◆' },
+      { nome: 'Dez de Ouros', naipe: 'Ouros', num: 10, desc: 'Herança, família, legado', symbol: '◆' },
+      { nome: 'Pajem de Ouros', naipe: 'Ouros', num: 11, desc: 'Estudo, talento, interesse', symbol: '◆' },
+      { nome: 'Cavaleiro de Ouros', naipe: 'Ouros', num: 12, desc: 'Confiabilidade, responsabilidade, trabalho', symbol: '◆' },
+      { nome: 'Rainha de Ouros', naipe: 'Ouros', num: 13, desc: 'Abundância, segurança, luxúria', symbol: '◆' },
+      { nome: 'Rei de Ouros', naipe: 'Ouros', num: 14, desc: 'Riqueza, abundância, liderança', symbol: '◆' },
     ];
 
-    function tirarCartas(qtd = 5){
-      const n = Math.max(1, Math.min(qtd|0, tarotCards.length));
-      const arr = tarotCards.slice();
-      for(let i = arr.length - 1; i > 0; i--){
+    function tirarCartas(qtd) {
+      const n = Math.max(1, Math.min(parseInt(qtd) || 3, baralho.length));
+      const arr = baralho.slice();
+      for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr.slice(0, n);
     }
 
-    const qtdEl = document.getElementById('qtd');
-    const listaEl = document.getElementById('lista');
-    function render(){
-      const qtd = Number(qtdEl.value) || 5;
+    function renderCartas() {
+      const qtd = document.getElementById('qtd').value;
       const cartas = tirarCartas(qtd);
-      listaEl.innerHTML = cartas.map(c => `<li>${c}</li>`).join('');
-    }
-    document.getElementById('btn').addEventListener('click', render);
-    document.getElementById('btn2').addEventListener('click', render);
+      const container = document.getElementById('cards-list');
+      const emptyState = document.getElementById('empty-state');
 
-    // primeira renderização
-    render();
+      if (cartas.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      container.innerHTML = cartas
+        .map(
+          (c) => `
+        <div class="card ${c.naipe.toLowerCase()}">
+          <div class="card-header">
+            <span class="card-symbol">${c.symbol}</span>
+            <div style="flex: 1;">
+              <div class="card-title">${c.nome}</div>
+              <div class="card-number">Nº ${c.num}</div>
+            </div>
+          </div>
+          <div class="card-description">${c.desc}</div>
+          <div class="card-suit">${c.naipe}</div>
+        </div>
+      `
+        )
+        .join('');
+    }
+
+    document.getElementById('btn-tirar').addEventListener('click', renderCartas);
+    document.getElementById('btn-novamente').addEventListener('click', renderCartas);
+
+    // Renderizar na primeira carga
+    renderCartas();
   </script>
 </body>
 </html>
